@@ -34,14 +34,12 @@ async def send_embed(
         timestamp=ctx.message.created_at,
     )
 
-    # Add author info if available
     if ctx.author:
         embed.set_author(
             name=ctx.author.display_name,
             icon_url=ctx.author.avatar.url if ctx.author.avatar else None,
         )
 
-    # Add any fields if provided
     if fields:
         for field in fields:
             embed.add_field(
@@ -50,7 +48,6 @@ async def send_embed(
                 inline=field.get("inline", False),
             )
 
-    # Set standard footer
     embed.set_footer(text=f"{ctx.bot.user.name} | Use !help for commands")
 
     await ctx.send(embed=embed)
