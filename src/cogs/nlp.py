@@ -34,10 +34,17 @@ class NLPCog(commands.Cog, name="NLP"):
 
         answer, similarity = self.nlp_processor.find_best_match(message.content)
         if answer and similarity > 0.3:
-            await message.reply(f"{answer}")
-            logger.info(
-                f"Matched query: '{message.content}' with similarity {similarity:.2f}"
-            )
+            try:
+                await message.reply(f"{answer}")
+            except discord.Forbidden:
+                await message.channel.send(f"{message.author.mention} {answer}")
+                logger.warning(
+                    f"Failed to reply to message from {message.author}: {message.content}"
+                )
+            finally:
+                logger.info(
+                    f"Matched query: '{message.content}' with similarity {similarity:.2f}"
+                )
 
     @commands.command(
         name="update",
