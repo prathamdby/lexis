@@ -40,7 +40,8 @@ class NLPCog(commands.Cog, name="NLP"):
             )
 
     @commands.command(
-        name="refresh_nlp", description="Refresh NLP data from Google Sheets"
+        name="update",
+        description="Refresh response database from Google Sheets to get the latest answers",
     )
     @has_role()
     async def refresh_nlp(self, ctx):
@@ -57,7 +58,10 @@ class NLPCog(commands.Cog, name="NLP"):
             discord.Color.green(),
         )
 
-    @commands.command(name="nlp_status", description="Show NLP system status")
+    @commands.command(
+        name="status",
+        description="Display system statistics including database size and update schedule",
+    )
     @has_role()
     async def nlp_status(self, ctx):
         phrases_count = len(self.nlp_processor.all_phrases)
@@ -76,7 +80,8 @@ class NLPCog(commands.Cog, name="NLP"):
         await send_embed(ctx, "NLP System Status", status_text, discord.Color.blue())
 
     @commands.command(
-        name="list_keywords", description="List all keywords and their responses"
+        name="responses",
+        description="Show all configured trigger phrases and their corresponding responses",
     )
     @has_role()
     async def list_keywords(self, ctx):
@@ -139,7 +144,7 @@ class NLPCog(commands.Cog, name="NLP"):
             await ctx.send(embed=embed)
 
     @commands.command(
-        name="test_query", description="Test a query against the NLP system"
+        name="test", description="Test how the bot would respond to a specific message"
     )
     @has_role()
     async def test_query(self, ctx, *, query=None):

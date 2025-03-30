@@ -26,9 +26,10 @@ class LexisBot(commands.Bot):
             command_prefix=commands.when_mentioned_or(BOT_PREFIX),
             intents=intents,
             help_command=commands.DefaultHelpCommand(),
-            description="A simple Discord bot",
+            description="Lexis - An intelligent Discord assistant with NLP capabilities",
             activity=discord.Activity(
-                type=discord.ActivityType.listening, name=f"{BOT_PREFIX}help"
+                type=discord.ActivityType.listening,
+                name=f"Type {BOT_PREFIX}help for commands",
             ),
         )
         self.initial_extensions: List[str] = get_cogs_list()

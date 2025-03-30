@@ -14,7 +14,9 @@ class Admin(commands.Cog):
     async def on_ready(self):
         logger.info("Admin cog loaded")
 
-    @commands.command(name="reload", description="Reload all cogs")
+    @commands.command(
+        name="reload", description="Reload all bot modules to apply code changes"
+    )
     @has_role()
     async def reload_all(self, ctx):
         from src.utils.helpers import get_cogs_list
@@ -33,23 +35,28 @@ class Admin(commands.Cog):
         if failed:
             await send_embed(
                 ctx,
-                "Reload Status",
-                f"Reloaded {len(success)} cogs. Failed to reload {len(failed)} cogs.",
+                "Module Reload Status",
+                f"Successfully reloaded {len(success)} modules. {len(failed)} modules failed to reload. Check logs for details.",
                 discord.Color.orange(),
             )
         else:
             await send_embed(
                 ctx,
-                "Success",
-                f"Reloaded all {len(success)} cogs",
+                "Modules Reloaded",
+                f"Successfully reloaded all {len(success)} bot modules",
                 discord.Color.green(),
             )
 
-    @commands.command(name="shutdown", description="Shutdown the bot")
+    @commands.command(
+        name="shutdown", description="Safely shutdown the bot and save all states"
+    )
     @has_role()
     async def shutdown(self, ctx):
         await send_embed(
-            ctx, "Shutting Down", "The bot is shutting down...", discord.Color.orange()
+            ctx,
+            "Shutdown Initiated",
+            "The bot is shutting down safely. All processes will be terminated.",
+            discord.Color.orange(),
         )
         logger.info("Bot shutting down by admin command")
         await self.bot.close()

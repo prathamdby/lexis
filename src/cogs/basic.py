@@ -14,14 +14,16 @@ class Basic(commands.Cog):
     async def on_ready(self):
         logger.info("Basic cog loaded")
 
-    @commands.command(name="ping", description="Check the bot's latency")
+    @commands.command(
+        name="ping", description="Check the bot's connection health and response times"
+    )
     async def ping(self, ctx):
         start_time = time.time()
         message = await ctx.send("Pinging...")
         end_time = time.time()
 
         await message.edit(
-            content=f"Pong! Latency: {round(self.bot.latency * 1000)}ms | API: {round((end_time - start_time) * 1000)}ms"
+            content=f"🟢 System Status:\n• Gateway Latency: {round(self.bot.latency * 1000)}ms\n• API Response Time: {round((end_time - start_time) * 1000)}ms"
         )
 
 

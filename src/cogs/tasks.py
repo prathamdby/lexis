@@ -17,17 +17,19 @@ class Tasks(commands.Cog):
     async def on_ready(self):
         logger.info("Tasks cog loaded")
 
-    @tasks.loop(minutes=30)
+    @tasks.loop(minutes=15)
     async def status_task(self):
+        """Update bot's status with current server count and help command info"""
         await self.bot.change_presence(
             activity=discord.Activity(
                 type=discord.ActivityType.watching,
-                name=f"{len(self.bot.guilds)} servers",
+                name=f"over {len(self.bot.guilds)} communities | Use !help",
             )
         )
 
     @status_task.before_loop
     async def before_status_task(self):
+        """Ensure bot is ready before starting status updates"""
         await self.bot.wait_until_ready()
 
 
