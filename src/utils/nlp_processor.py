@@ -18,10 +18,8 @@ class NLPProcessor:
         self.tfidf_matrix = None
         self.all_phrases = []
         self.answer_map = []
-        self.last_data_refresh = 0
         self.stop_words = set(stopwords.words("english"))
         self.process_data()
-        self.last_data_refresh = time.time()
 
     def preprocess_text(self, text):
         tokens = word_tokenize(text.lower())
@@ -84,13 +82,3 @@ class NLPProcessor:
         if similarity_score > 0.3:
             return self.answer_map[best_match_idx], similarity_score
         return None, 0
-
-    def update_model_if_needed(self):
-        current_time = time.time()
-        if current_time - self.last_data_refresh > DATA_REFRESH_INTERVAL:
-            logger.info("Refreshing data...")
-            self.process_data()
-            self.last_data_refresh = current_time
-            logger.info(f"Data refreshed at {time.ctime(current_time)}")
-            return True
-        return False

@@ -1,5 +1,5 @@
 import discord
-from discord.ext import commands
+from discord.ext import commands, tasks
 import logging
 import time
 import nltk
@@ -15,6 +15,7 @@ class NLPCog(commands.Cog, name="NLP"):
         self.bot = bot
         self._initialize_nltk()
         self.nlp_processor = NLPProcessor()
+        self.last_refresh = time.time()
         logger.info("NLP processor initialized")
 
     def _initialize_nltk(self):
@@ -28,10 +29,23 @@ class NLPCog(commands.Cog, name="NLP"):
     @commands.Cog.listener()
     async def on_ready(self):
         logger.info("NLP cog loaded")
+        self.periodic_refresh.start()
+
+    def cog_unload(self):
+        self.periodic_refresh.cancel()
+
+    @tasks.loop(seconds=DATA_REFRESH_INTERVAL)
+    async def periodic_refresh(self):
+        logger.info("Refreshing NLP model data...")
+        self.nlp_processor.process_data()
+        self.last_refresh = time.time()
+        logger.info("NLP model data refreshed")
+
+    @periodic_refresh.before_loop
+    async def before_refresh(self):
+        await self.bot.wait_until_ready()
 
     async def process_message(self, message):
-        self.nlp_processor.update_model_if_needed()
-
         answer, similarity = self.nlp_processor.find_best_match(message.content)
         if answer and similarity > 0.3:
             try:
@@ -56,7 +70,7 @@ class NLPCog(commands.Cog, name="NLP"):
         await ctx.send("📡 Refreshing response database...")
 
         self.nlp_processor.process_data()
-        self.nlp_processor.last_data_refresh = time.time()
+        self.last_refresh = time.time()
 
         fields = [
             {
@@ -66,7 +80,7 @@ class NLPCog(commands.Cog, name="NLP"):
             },
             {
                 "name": "Next Update",
-                "value": f"<t:{int(self.nlp_processor.last_data_refresh + DATA_REFRESH_INTERVAL)}:R>",
+                "value": f"<t:{int(self.last_refresh + DATA_REFRESH_INTERVAL)}:R>",
                 "inline": False,
             },
         ]
@@ -96,12 +110,12 @@ class NLPCog(commands.Cog, name="NLP"):
             },
             {
                 "name": "Last Update",
-                "value": f"<t:{int(self.nlp_processor.last_data_refresh)}:R>",
+                "value": f"<t:{int(self.last_refresh)}:R>",
                 "inline": True,
             },
             {
                 "name": "Next Update",
-                "value": f"<t:{int(self.nlp_processor.last_data_refresh + DATA_REFRESH_INTERVAL)}:R>",
+                "value": f"<t:{int(self.last_refresh + DATA_REFRESH_INTERVAL)}:R>",
                 "inline": True,
             },
             {
@@ -200,7 +214,6 @@ class NLPCog(commands.Cog, name="NLP"):
             )
             return
 
-        self.nlp_processor.update_model_if_needed()
         answer, similarity = self.nlp_processor.find_best_match(query)
 
         if answer:
