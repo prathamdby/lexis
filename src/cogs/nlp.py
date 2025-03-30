@@ -46,16 +46,31 @@ class NLPCog(commands.Cog, name="NLP"):
     @has_role()
     async def refresh_nlp(self, ctx):
         logger.info(f"{ctx.author} requested data refresh")
-        await ctx.send("Refreshing NLP data...")
+        await ctx.send("📡 Refreshing response database...")
 
         self.nlp_processor.process_data()
         self.nlp_processor.last_data_refresh = time.time()
 
+        fields = [
+            {
+                "name": "Database Size",
+                "value": f"`{len(self.nlp_processor.all_phrases)}` trigger phrases loaded",
+                "inline": False,
+            },
+            {
+                "name": "Next Update",
+                "value": f"<t:{int(self.nlp_processor.last_data_refresh + DATA_REFRESH_INTERVAL)}:R>",
+                "inline": False,
+            },
+        ]
+
         await send_embed(
             ctx,
-            "NLP Data Refreshed",
-            f"Successfully loaded {len(self.nlp_processor.all_phrases)} phrases for matching.",
+            "Database Update Complete",
+            "✅ Successfully refreshed response database from Google Sheets",
             discord.Color.green(),
+            "🔄",
+            fields,
         )
 
     @commands.command(
@@ -65,19 +80,38 @@ class NLPCog(commands.Cog, name="NLP"):
     @has_role()
     async def nlp_status(self, ctx):
         phrases_count = len(self.nlp_processor.all_phrases)
-        last_refresh = time.ctime(self.nlp_processor.last_data_refresh)
-        next_refresh = time.ctime(
-            self.nlp_processor.last_data_refresh + DATA_REFRESH_INTERVAL
-        )
 
-        status_text = (
-            f"**Phrases in database:** {phrases_count}\n"
-            f"**Last refresh:** {last_refresh}\n"
-            f"**Next refresh due:** {next_refresh}\n"
-            f"**Refresh interval:** {DATA_REFRESH_INTERVAL} seconds"
-        )
+        fields = [
+            {
+                "name": "Database Size",
+                "value": f"`{phrases_count}` trigger phrases",
+                "inline": True,
+            },
+            {
+                "name": "Last Update",
+                "value": f"<t:{int(self.nlp_processor.last_data_refresh)}:R>",
+                "inline": True,
+            },
+            {
+                "name": "Next Update",
+                "value": f"<t:{int(self.nlp_processor.last_data_refresh + DATA_REFRESH_INTERVAL)}:R>",
+                "inline": True,
+            },
+            {
+                "name": "Update Interval",
+                "value": f"`{DATA_REFRESH_INTERVAL}` seconds",
+                "inline": True,
+            },
+        ]
 
-        await send_embed(ctx, "NLP System Status", status_text, discord.Color.blue())
+        await send_embed(
+            ctx,
+            "System Status Report",
+            "Current status of the response system",
+            discord.Color.blue(),
+            "📊",
+            fields,
+        )
 
     @commands.command(
         name="responses",
@@ -88,9 +122,10 @@ class NLPCog(commands.Cog, name="NLP"):
         if not self.nlp_processor.all_phrases:
             await send_embed(
                 ctx,
-                "No Keywords Found",
-                "There are currently no keywords in the database.",
+                "Empty Database",
+                "No trigger phrases or responses found in the database.",
                 discord.Color.red(),
+                "⚠️",
             )
             return
 
@@ -105,32 +140,32 @@ class NLPCog(commands.Cog, name="NLP"):
 
         embeds = []
         current_embed = discord.Embed(
-            title="Keywords and Responses",
-            description="All available keywords and their corresponding responses:",
+            title="Response Configuration",
+            description="List of available responses and their trigger phrases",
             color=discord.Color.blue(),
+        )
+        current_embed.set_author(
+            name=ctx.author.display_name,
+            icon_url=ctx.author.avatar.url if ctx.author.avatar else None,
         )
         current_length = 0
 
         for answer, keywords in keyword_responses.items():
-            field_content = ", ".join(keywords)
+            field_content = ", ".join([f"`{k}`" for k in keywords])
             if current_length + len(field_content) + len(answer) > 5500:
                 embeds.append(current_embed)
                 current_embed = discord.Embed(
-                    title="Keywords and Responses (Continued)",
+                    title="Response Configuration (Continued)",
                     color=discord.Color.blue(),
                 )
                 current_length = 0
 
             current_embed.add_field(
-                name=(
-                    f"Response: {answer[:250]}"
-                    if len(answer) > 250
-                    else f"Response: {answer}"
-                ),
+                name=f"📝 {answer[:250]}" if len(answer) > 250 else f"📝 {answer}",
                 value=(
-                    f"Keywords: {field_content[:1020]}"
+                    f"Triggers: {field_content[:1020]}"
                     if len(field_content) > 1020
-                    else f"Keywords: {field_content}"
+                    else f"Triggers: {field_content}"
                 ),
                 inline=False,
             )
@@ -140,7 +175,7 @@ class NLPCog(commands.Cog, name="NLP"):
             embeds.append(current_embed)
 
         for i, embed in enumerate(embeds):
-            embed.set_footer(text=f"Page {i+1}/{len(embeds)}")
+            embed.set_footer(text=f"Page {i+1}/{len(embeds)} | {ctx.bot.user.name}")
             await ctx.send(embed=embed)
 
     @commands.command(
@@ -149,28 +184,44 @@ class NLPCog(commands.Cog, name="NLP"):
     @has_role()
     async def test_query(self, ctx, *, query=None):
         if not query:
-            await ctx.send("Please provide a query to test.")
+            await send_embed(
+                ctx,
+                "Missing Query",
+                "Please provide a message to test.",
+                discord.Color.red(),
+                "❌",
+            )
             return
 
         self.nlp_processor.update_model_if_needed()
         answer, similarity = self.nlp_processor.find_best_match(query)
 
         if answer:
-            embed = discord.Embed(
-                title="Query Match Results", color=discord.Color.green()
+            fields = [
+                {"name": "Test Message", "value": f"`{query}`", "inline": False},
+                {"name": "Response", "value": answer, "inline": False},
+                {
+                    "name": "Match Confidence",
+                    "value": f"`{similarity:.2%}`",
+                    "inline": True,
+                },
+            ]
+
+            await send_embed(
+                ctx,
+                "Test Results",
+                "✅ Found matching response",
+                discord.Color.green(),
+                "🔍",
+                fields,
             )
-            embed.add_field(name="Query", value=query, inline=False)
-            embed.add_field(name="Answer", value=answer, inline=False)
-            embed.add_field(
-                name="Similarity Score", value=f"{similarity:.4f}", inline=False
-            )
-            await ctx.send(embed=embed)
         else:
             await send_embed(
                 ctx,
                 "No Match Found",
-                f"No match found for query: '{query}'",
+                f"No suitable response found for: `{query}`",
                 discord.Color.red(),
+                "❌",
             )
 
 

@@ -13,8 +13,46 @@ def get_cogs_list():
     return cogs
 
 
-async def send_embed(ctx, title, description, color=discord.Color.blue()):
-    embed = discord.Embed(title=title, description=description, color=color)
+async def send_embed(
+    ctx, title, description, color=discord.Color.blue(), emoji="", fields=None
+):
+    """Create and send a standardized embed message
+
+    Args:
+        ctx: Command context
+        title: Embed title
+        description: Main embed description
+        color: Color of the embed (default: blue)
+        emoji: Optional emoji prefix for title
+        fields: Optional list of fields, each being a dict with 'name' and 'value' keys
+    """
+    title_with_emoji = f"{emoji} {title}" if emoji else title
+    embed = discord.Embed(
+        title=title_with_emoji,
+        description=description,
+        color=color,
+        timestamp=ctx.message.created_at,
+    )
+
+    # Add author info if available
+    if ctx.author:
+        embed.set_author(
+            name=ctx.author.display_name,
+            icon_url=ctx.author.avatar.url if ctx.author.avatar else None,
+        )
+
+    # Add any fields if provided
+    if fields:
+        for field in fields:
+            embed.add_field(
+                name=field["name"],
+                value=field["value"],
+                inline=field.get("inline", False),
+            )
+
+    # Set standard footer
+    embed.set_footer(text=f"{ctx.bot.user.name} | Use !help for commands")
+
     await ctx.send(embed=embed)
 
 

@@ -19,11 +19,38 @@ class Basic(commands.Cog):
     )
     async def ping(self, ctx):
         start_time = time.time()
-        message = await ctx.send("Pinging...")
+        temp_msg = await ctx.send("Pinging...")
         end_time = time.time()
 
-        await message.edit(
-            content=f"🟢 System Status:\n• Gateway Latency: {round(self.bot.latency * 1000)}ms\n• API Response Time: {round((end_time - start_time) * 1000)}ms"
+        gateway_latency = round(self.bot.latency * 1000)
+        api_latency = round((end_time - start_time) * 1000)
+        await temp_msg.delete()
+
+        fields = [
+            {
+                "name": "Gateway Latency",
+                "value": f"`{gateway_latency}ms`",
+                "inline": True,
+            },
+            {
+                "name": "API Response Time",
+                "value": f"`{api_latency}ms`",
+                "inline": True,
+            },
+        ]
+
+        status = (
+            "✅ All Systems Operational"
+            if gateway_latency < 300 and api_latency < 300
+            else "⚠️ High Latency"
+        )
+        await send_embed(
+            ctx,
+            "System Status",
+            status,
+            discord.Color.green() if "✅" in status else discord.Color.orange(),
+            "🔍",
+            fields,
         )
 
 

@@ -32,31 +32,61 @@ class Admin(commands.Cog):
                 failed.append(cog)
                 logger.error(f"Failed to reload {cog}: {e}")
 
+        fields = []
+        if success:
+            fields.append(
+                {
+                    "name": "✅ Successfully Reloaded",
+                    "value": "\n".join([f"`{cog}`" for cog in success]),
+                    "inline": False,
+                }
+            )
         if failed:
-            await send_embed(
-                ctx,
-                "Module Reload Status",
-                f"Successfully reloaded {len(success)} modules. {len(failed)} modules failed to reload. Check logs for details.",
-                discord.Color.orange(),
+            fields.append(
+                {
+                    "name": "❌ Failed to Reload",
+                    "value": "\n".join([f"`{cog}`" for cog in failed]),
+                    "inline": False,
+                }
             )
-        else:
-            await send_embed(
-                ctx,
-                "Modules Reloaded",
-                f"Successfully reloaded all {len(success)} bot modules",
-                discord.Color.green(),
-            )
+
+        status = "Partial Success" if failed else "Complete Success"
+        color = discord.Color.orange() if failed else discord.Color.green()
+
+        await send_embed(
+            ctx,
+            "Module Reload Report",
+            f"Attempted to reload {len(success) + len(failed)} module(s)",
+            color,
+            "🔄",
+            fields,
+        )
 
     @commands.command(
         name="shutdown", description="Safely shutdown the bot and save all states"
     )
     @has_role()
     async def shutdown(self, ctx):
+        fields = [
+            {
+                "name": "Reason",
+                "value": "Administrative shutdown request",
+                "inline": False,
+            },
+            {
+                "name": "Status",
+                "value": "All processes are being terminated safely",
+                "inline": False,
+            },
+        ]
+
         await send_embed(
             ctx,
-            "Shutdown Initiated",
-            "The bot is shutting down safely. All processes will be terminated.",
+            "System Shutdown",
+            "⚠️ Bot is shutting down. It will need to be manually restarted.",
             discord.Color.orange(),
+            "🔌",
+            fields,
         )
         logger.info("Bot shutting down by admin command")
         await self.bot.close()
