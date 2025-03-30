@@ -26,7 +26,6 @@ Follow these steps to configure your bot:
 # Discord Bot Configuration
 BOT_TOKEN=your_discord_bot_token_here
 BOT_PREFIX=!
-GUILD_ID=your_guild_id_here
 ADMIN_ROLE=Bot Admin
 
 # Application Configuration
