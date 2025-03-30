@@ -7,7 +7,7 @@ Lexis is an intelligent Discord bot that uses Natural Language Processing (NLP) 
 - Real-time message analysis using NLP
 - Dynamic response database via Google Sheets integration
 - Automatic data refresh system
-- Role-based access control
+- Role-based access control with owner override capabilities
 - Command-based administration
 - Professional embed messages with consistent formatting
 - Comprehensive logging system
@@ -27,6 +27,7 @@ Follow these steps to configure your bot:
 BOT_TOKEN=your_discord_bot_token_here
 BOT_PREFIX=!
 ADMIN_ROLE=Bot Admin
+OWNER_ID=your_discord_user_id_here
 
 # Application Configuration
 LOG_LEVEL=INFO

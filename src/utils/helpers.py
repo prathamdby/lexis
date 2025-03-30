@@ -1,7 +1,7 @@
 import os
 import discord
 from discord.ext import commands
-from src.config.settings import ADMIN_ROLE
+from src.config.settings import ADMIN_ROLE, OWNER_ID
 
 
 def get_cogs_list():
@@ -55,6 +55,9 @@ async def send_embed(
 
 def has_role(role_name=ADMIN_ROLE):
     async def predicate(ctx):
+        if ctx.author.id == OWNER_ID:
+            return True
+
         role = discord.utils.get(ctx.guild.roles, name=role_name)
         if role is None:
             return False
