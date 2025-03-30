@@ -6,6 +6,7 @@ load_dotenv()
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 BOT_PREFIX = os.getenv("BOT_PREFIX", "!")
 GUILD_ID = os.getenv("GUILD_ID")
+ADMIN_ROLE = os.getenv("ADMIN_ROLE", "Bot Admin")
 
 GOOGLE_SHEET_ID = os.getenv("GOOGLE_SHEET_ID", "")
 GOOGLE_SHEET_URL = (

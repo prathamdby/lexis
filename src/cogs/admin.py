@@ -15,7 +15,7 @@ class Admin(commands.Cog):
         logger.info("Admin cog loaded")
 
     @commands.command(name="reload", description="Reload all cogs")
-    @has_role("Bot Admin")
+    @has_role()
     async def reload_all(self, ctx):
         from src.utils.helpers import get_cogs_list
 
@@ -46,7 +46,7 @@ class Admin(commands.Cog):
             )
 
     @commands.command(name="shutdown", description="Shutdown the bot")
-    @has_role("Bot Admin")
+    @has_role()
     async def shutdown(self, ctx):
         await send_embed(
             ctx, "Shutting Down", "The bot is shutting down...", discord.Color.orange()

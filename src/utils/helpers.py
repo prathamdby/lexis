@@ -1,6 +1,7 @@
 import os
 import discord
 from discord.ext import commands
+from src.config.settings import ADMIN_ROLE
 
 
 def get_cogs_list():
@@ -17,7 +18,7 @@ async def send_embed(ctx, title, description, color=discord.Color.blue()):
     await ctx.send(embed=embed)
 
 
-def has_role(role_name):
+def has_role(role_name=ADMIN_ROLE):
     async def predicate(ctx):
         role = discord.utils.get(ctx.guild.roles, name=role_name)
         if role is None:
