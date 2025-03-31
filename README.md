@@ -45,6 +45,13 @@ LOG_LEVEL=INFO
 # NLP Configuration
 GOOGLE_SHEET_ID=your_sheet_id_here
 DATA_REFRESH_INTERVAL=600
+
+# OpenAI Configuration
+OPENAI_API_KEY=your_openai_api_key_here
+OPENAI_BASE_URL=https://api.openai.com/v1
+OPENAI_MODEL=gpt-3.5-turbo
+RATE_LIMIT_INTERVAL=60  # Time window in seconds for rate limiting
+RATE_LIMIT_MAX_REQUESTS=3  # Maximum number of requests per user in the time window
 ```
 
 ## Available Commands
@@ -75,6 +82,13 @@ DATA_REFRESH_INTERVAL=600
 - `!test <message>` - Test how the bot would respond to a specific message
   - Shows match confidence scores
   - Displays exact response that would be sent
+
+### AI Commands
+
+- `!ask <question>` - Ask a question and get an answer from the knowledge base using AI
+  - Uses OpenAI to generate accurate answers based on the knowledge base
+  - Provides detailed, contextual responses that match the knowledge base
+  - Implements user-based rate limiting to prevent abuse
 
 ### Basic Commands
 
@@ -111,6 +125,7 @@ DATA_REFRESH_INTERVAL=600
 
   - Google Sheets for dynamic data sourcing
   - Automatic data refresh mechanism
+  - OpenAI for intelligent knowledge base queries
 
 - **Logging**:
   - Structured logging with configurable levels
@@ -123,12 +138,14 @@ DATA_REFRESH_INTERVAL=600
 src/
 ├── cogs/           # Feature modules
 │   ├── admin.py    # Administrative commands and controls
+│   ├── ai.py       # AI-powered knowledge base queries
 │   ├── basic.py    # System health and utility commands
 │   ├── nlp.py      # Core NLP functionality and commands
 │   └── tasks.py    # Background tasks and status updates
 ├── config/         # Settings and configuration
 │   └── settings.py # Centralized configuration management
 ├── utils/          # Utility modules
+│   ├── ai_client.py # OpenAI integration with rate limiting
 │   ├── helpers.py  # Common utilities and decorators
 │   └── nlp_processor.py  # NLP engine implementation
 └── main.py         # Bot initialization and core setup

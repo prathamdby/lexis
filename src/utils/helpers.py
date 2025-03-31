@@ -50,7 +50,7 @@ async def send_embed(
 
     embed.set_footer(text=f"{ctx.bot.user.name} | Use !help for commands")
 
-    await ctx.send(embed=embed)
+    await ctx.message.reply(embed=embed)
 
 
 def has_role(role_name=ADMIN_ROLE):
