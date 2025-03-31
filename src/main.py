@@ -40,7 +40,7 @@ class LexisBot(commands.Bot):
                 await self.load_extension(extension)
                 logger.info(f"Loaded extension {extension}")
             except Exception as e:
-                logger.error(f"Failed to load extension {extension}")
+                logger.error(f"Failed to load extension {extension}", exc_info=e)
 
     async def on_ready(self):
         logger.info(f"Logged in as {self.user}")
