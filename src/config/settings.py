@@ -14,14 +14,14 @@ GOOGLE_SHEET_URL = (
     if GOOGLE_SHEET_ID
     else ""
 )
-DATA_REFRESH_INTERVAL = int(os.getenv("DATA_REFRESH_INTERVAL", 600))
+DATA_REFRESH_INTERVAL = int(os.getenv("DATA_REFRESH_INTERVAL", "600"))
 
 # OpenAI Configuration
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 OPENAI_BASE_URL = os.getenv("OPENAI_BASE_URL", "https://api.openai.com/v1")
 OPENAI_MODEL = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
-RATE_LIMIT_INTERVAL = int(os.getenv("RATE_LIMIT_INTERVAL", 60))
-RATE_LIMIT_MAX_REQUESTS = int(os.getenv("RATE_LIMIT_MAX_REQUESTS", 5))
+RATE_LIMIT_INTERVAL = int(os.getenv("RATE_LIMIT_INTERVAL", "60"))
+RATE_LIMIT_MAX_REQUESTS = int(os.getenv("RATE_LIMIT_MAX_REQUESTS", "3"))
 
 LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")
 LOGGING_CONFIG = {
