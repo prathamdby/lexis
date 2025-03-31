@@ -2,10 +2,11 @@ import discord
 from discord.ext import commands
 import logging
 from typing import List, Dict
-import pandas as pd
+import asyncio
 
 from src.utils.helpers import send_embed
 from src.utils.ai_client import AIClient
+from src.config.settings import RATE_LIMIT_INTERVAL, RATE_LIMIT_MAX_REQUESTS
 
 logger = logging.getLogger(__name__)
 
@@ -15,6 +16,10 @@ class AI(commands.Cog):
         self.bot = bot
         self.ai_client = AIClient()
         self.nlp_cog = None
+        self.active_requests = set()
+        logger.info(
+            f"AI cog initialized with rate limits: {RATE_LIMIT_MAX_REQUESTS} requests every {RATE_LIMIT_INTERVAL} seconds"
+        )
 
     @commands.Cog.listener()
     async def on_ready(self):
@@ -28,6 +33,18 @@ class AI(commands.Cog):
         description="Ask a question and get an answer based on the knowledge base",
     )
     async def ask(self, ctx, *, question: str = None):
+        user_id = ctx.author.id
+
+        if user_id in self.active_requests:
+            await send_embed(
+                ctx,
+                "Request In Progress",
+                "You already have a question being processed. Please wait for it to complete.",
+                discord.Color.orange(),
+                "⏳",
+            )
+            return
+
         if not question:
             await send_embed(
                 ctx,
@@ -48,7 +65,6 @@ class AI(commands.Cog):
             )
             return
 
-        # Get knowledge base from NLP cog
         knowledge_base = self._get_knowledge_base()
 
         if not knowledge_base:
@@ -61,52 +77,70 @@ class AI(commands.Cog):
             )
             return
 
-        # Show loading state
-        async with ctx.typing():
-            # Get answer from AI client
-            answer, success = await self.ai_client.ask(
-                ctx.author.id, question, knowledge_base
+        try:
+            self.active_requests.add(user_id)
+
+            async with ctx.typing():
+                answer, success = await self.ai_client.ask(
+                    user_id, question, knowledge_base
+                )
+
+                if success:
+                    color = discord.Color.green()
+                    title = "AI Answer"
+                    emoji = "🤖"
+                else:
+                    color = discord.Color.red()
+                    title = "Error"
+                    emoji = "❌"
+
+                await send_embed(ctx, title, answer, color, emoji)
+
+        except asyncio.CancelledError:
+            logger.warning(f"Request from user {user_id} was cancelled")
+            await send_embed(
+                ctx,
+                "Request Cancelled",
+                "Your request was cancelled due to a server issue. Please try again.",
+                discord.Color.red(),
+                "🚫",
             )
-
-            if success:
-                color = discord.Color.green()
-                title = "AI Answer"
-                emoji = "🤖"
-            else:
-                color = discord.Color.red()
-                title = "Error"
-                emoji = "❌"
-
-            await send_embed(ctx, title, answer, color, emoji)
+        except Exception as e:
+            logger.error(
+                f"Unexpected error processing request from user {user_id}: {str(e)}"
+            )
+            await send_embed(
+                ctx,
+                "Unexpected Error",
+                f"An unexpected error occurred: {str(e)}",
+                discord.Color.red(),
+                "💥",
+            )
+        finally:
+            self.active_requests.remove(user_id)
 
     def _get_knowledge_base(self) -> List[Dict[str, str]]:
         if not self.nlp_cog or not hasattr(self.nlp_cog, "nlp_processor"):
             return []
 
-        # Create a knowledge base from NLP processor data
         knowledge_base = []
 
-        # Get unique entries from answer_map with corresponding phrases
         phrases = self.nlp_cog.nlp_processor.all_phrases
         answers = self.nlp_cog.nlp_processor.answer_map
 
         if not phrases or not answers:
             return []
 
-        # Create a dictionary mapping answers to their phrases
         answer_to_phrases = {}
         for phrase, answer in zip(phrases, answers):
             if answer not in answer_to_phrases:
                 answer_to_phrases[answer] = []
             answer_to_phrases[answer].append(phrase)
 
-        # Create knowledge base entries
         for answer, related_phrases in answer_to_phrases.items():
             knowledge_base.append(
                 {
-                    "title": " | ".join(
-                        related_phrases[:3]
-                    ),  # Use first few phrases as title
+                    "title": " | ".join(related_phrases[:3]),
                     "content": answer,
                 }
             )
