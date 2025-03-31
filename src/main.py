@@ -50,6 +50,13 @@ class LexisBot(commands.Bot):
         except Exception:
             pass
 
+    async def on_thread_create(self, thread):
+        try:
+            await thread.join()
+            logger.info(f"Joined thread: {thread.name} (ID: {thread.id})")
+        except Exception as e:
+            logger.error(f"Failed to join thread {thread.name} (ID: {thread.id}): {e}")
+
     async def on_message(self, message):
         await self.process_commands(message)
 
