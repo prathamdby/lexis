@@ -49,7 +49,7 @@ class NLPCog(commands.Cog, name="NLP"):
         answer, similarity = self.nlp_processor.find_best_match(message.content)
         if answer and similarity > 0.3:
             try:
-                await message.reply(f"{answer}")
+                await message.reply(f"{answer}", suppress_embeds=True)
             except discord.Forbidden:
                 await message.channel.send(f"{message.author.mention} {answer}")
                 logger.warning(

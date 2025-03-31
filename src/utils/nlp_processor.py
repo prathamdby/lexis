@@ -3,6 +3,7 @@ import pandas as pd
 import numpy as np
 from nltk.tokenize import word_tokenize
 from nltk.corpus import stopwords
+from nltk.stem import PorterStemmer
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
@@ -18,12 +19,15 @@ class NLPProcessor:
         self.all_phrases = []
         self.answer_map = []
         self.stop_words = set(stopwords.words("english"))
+        self.stemmer = PorterStemmer()
         self.process_data()
 
     def preprocess_text(self, text):
         tokens = word_tokenize(text.lower())
         tokens = [
-            word for word in tokens if word.isalnum() and word not in self.stop_words
+            self.stemmer.stem(word)
+            for word in tokens
+            if word.isalnum() and word not in self.stop_words
         ]
         return " ".join(tokens)
 
@@ -81,6 +85,10 @@ class NLPProcessor:
         best_match_idx = np.argmax(similarities[0])
         similarity_score = similarities[0][best_match_idx]
 
-        if similarity_score > 0.3:
+        logger.debug(
+            f"Query: '{message_text}', Best match score: {similarity_score:.2f}"
+        )
+
+        if similarity_score > 0.25:
             return self.answer_map[best_match_idx], similarity_score
         return None, 0
