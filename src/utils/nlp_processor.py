@@ -57,9 +57,10 @@ class NLPProcessor:
             keywords, answer = row
             for keyword in str(keywords).split(","):
                 keyword = keyword.strip()
-                preprocessed = self.preprocess_text(keyword)
-                self.all_phrases.append(preprocessed)
-                self.answer_map.append(answer)
+                if keyword:
+                    preprocessed = self.preprocess_text(keyword)
+                    self.all_phrases.append(preprocessed)
+                    self.answer_map.append(answer)
 
         if self.all_phrases:
             self.tfidf_matrix = self.vectorizer.fit_transform(self.all_phrases)
