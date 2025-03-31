@@ -1,27 +1,26 @@
 # Lexis Discord Bot
 
-🗣️ Lexis is an intelligent Discord bot that uses advanced Natural Language Processing (NLP) to provide human-like automated responses based on a configurable knowledge base. It features a sophisticated modular design, comprehensive administrative controls, and real-time response matching capabilities.
+🗣️ Lexis is an intelligent Discord bot that uses Natural Language Processing (NLP) to provide automated responses based on a configurable knowledge base. It features a sophisticated modular design, comprehensive administrative controls, and real-time response matching capabilities.
 
 ## Features
 
 ### Core Functionality
 
-- Advanced real-time message analysis using dual NLP approaches:
+- Advanced real-time message analysis using NLP:
   - TF-IDF vectorization with cosine similarity matching
-  - Fuzzy matching for better response accuracy
+  - Intelligent message preprocessing (tokenization and stopword removal)
+  - Configurable similarity thresholds for response matching
 - Dynamic response database via Google Sheets integration with automatic updates
-- Intelligent message preprocessing including tokenization and stopword removal
-- Configurable similarity thresholds for response matching
+- Role-based access control with owner override capabilities
 
 ### System Features
 
 - Periodic data refresh system with configurable intervals
-- Role-based access control with owner override capabilities
-- Professional embed messages with consistent formatting and emojis
 - Comprehensive logging system with configurable levels
-- Modular architecture for easy expansion
+- Modular architecture using Discord.py cogs
 - Real-time bot status updates
 - System health monitoring and latency tracking
+- Professional embed messages with consistent formatting and emojis
 
 ## Setting up the Bot
 
@@ -58,6 +57,9 @@ DATA_REFRESH_INTERVAL=600
 - `!shutdown` - Safely shutdown the bot and save all states
   - Ensures clean termination of all processes
   - Logs shutdown event for monitoring
+- `!restart` - Restart the bot process
+  - Automatically reinitializes all systems
+  - Maintains configurations and states
 
 ### NLP Commands
 
@@ -91,14 +93,13 @@ DATA_REFRESH_INTERVAL=600
 
 - **NLP Processing**:
 
-  - NLTK ≥3.9.1 for advanced text processing
+  - NLTK ≥3.9.1 for text processing
     - Tokenization
     - Stopword removal
-  - scikit-learn ≥1.6.1 for ML-based text analysis
+  - scikit-learn ≥1.6.1 for text analysis
     - TF-IDF vectorization
     - Cosine similarity computation
-  - thefuzz ≥0.22.1 for fuzzy string matching
-  - pandas ≥2.2.3 for efficient data handling
+  - pandas ≥2.2.3 for data handling
   - numpy ≥2.2.4 for numerical operations
 
 - **Configuration**:
@@ -108,7 +109,7 @@ DATA_REFRESH_INTERVAL=600
 
 - **Integrations**:
 
-  - Google Sheets API for dynamic data sourcing
+  - Google Sheets for dynamic data sourcing
   - Automatic data refresh mechanism
 
 - **Logging**:
