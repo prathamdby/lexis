@@ -1,6 +1,8 @@
 import discord
 from discord.ext import commands
 import logging
+import os  # Add os import
+import sys # Add sys import
 from src.utils.helpers import has_role, send_embed
 
 logger = logging.getLogger(__name__)
@@ -90,6 +92,41 @@ class Admin(commands.Cog):
         )
         logger.info("Bot shutting down by admin command")
         await self.bot.close()
+
+    @commands.command(name="restart", description="Restart the bot")
+    @has_role()
+    async def restart(self, ctx):
+        """Restarts the bot."""
+        fields = [
+            {
+                "name": "Reason",
+                "value": "Administrative restart request",
+                "inline": False,
+            },
+            {
+                "name": "Status",
+                "value": "Bot is restarting...",
+                "inline": False,
+            },
+        ]
+
+        await send_embed(
+            ctx,
+            "System Restart",
+            "🔄 Bot is restarting now. Please wait a moment.",
+            discord.Color.blue(),
+            "🔄",
+            fields,
+        )
+        logger.info("Bot restarting by admin command...")
+
+        await self.bot.close()
+
+        try:
+            os.execv(sys.executable, ['python'] + sys.argv)
+        except Exception as e:
+            logger.error(f"Failed to restart bot: {e}")
+            await ctx.send(f"❌ Failed to initiate restart: {e}")
 
 
 async def setup(bot):
