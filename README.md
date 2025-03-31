@@ -49,9 +49,9 @@ DATA_REFRESH_INTERVAL=600
 # OpenAI Configuration
 OPENAI_API_KEY=your_openai_api_key_here
 OPENAI_BASE_URL=https://api.openai.com/v1
-OPENAI_MODEL=gpt-3.5-turbo
+OPENAI_MODEL=gpt-4o-mini
 RATE_LIMIT_INTERVAL=60  # Time window in seconds for rate limiting
-RATE_LIMIT_MAX_REQUESTS=3  # Maximum number of requests per user in the time window
+RATE_LIMIT_MAX_REQUESTS=5  # Maximum number of requests per user in the time window
 ```
 
 ## Available Commands
