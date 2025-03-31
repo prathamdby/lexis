@@ -1,13 +1,12 @@
 import logging
 import pandas as pd
 import numpy as np
-import time
 from nltk.tokenize import word_tokenize
 from nltk.corpus import stopwords
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
-from src.config.settings import GOOGLE_SHEET_URL, DATA_REFRESH_INTERVAL
+from src.config.settings import GOOGLE_SHEET_URL
 
 logger = logging.getLogger(__name__)
 
