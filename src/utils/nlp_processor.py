@@ -40,6 +40,8 @@ class NLPProcessor:
                 logger.warning("Invalid data format in the Google Sheet")
                 return []
 
+            data = data.dropna(subset=[data.columns[1]])
+
             sheet_data = data.iloc[:, 0:2].values.tolist()
             logger.info(f"Loaded {len(sheet_data)} records from Google Sheet")
             return sheet_data
